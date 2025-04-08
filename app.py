@@ -14,7 +14,8 @@ code_content = ""
 if upload_file is not None:
     code_content  = upload_file.read().decode("utf-8")
     st.subheader("uploaded code:")
-    st.code(code_content,language=upload_file.name.split('.')[-1])
+    with st.expander("click to see uploaded code."):
+        st.code(code_content,language=upload_file.name.split('.')[-1])
 
 # displaying code review when button is clicked
 if code_content:
@@ -22,7 +23,8 @@ if code_content:
         with st.spinner("Analysing your code..."):
             suggestions = codeCritic(code_content)
         st.subheader("Code Review:")
-        st.markdown(suggestions)
+        with st.expander("click here to collapse.",expanded=True):
+            st.markdown(suggestions)
 
         # save the review in database
         db: Session = next(get_db())
