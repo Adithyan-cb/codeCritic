@@ -1,3 +1,4 @@
 .env
 codeCritic/
 __pycache__
+code_reviews.db
