@@ -3,10 +3,24 @@ from dotenv import load_dotenv
 from database import get_db,CodeReview
 from sqlalchemy.orm import Session
 from codecritic import codeCritic
-
+import datetime
 
 # creating a uploader using streamlit
-st.title("Code Critic")
+title = """
+        <h1 style="text-align:center; 
+                   background: -webkit-linear-gradient(#3E196E,#D46C76,#FFC07C);
+                   -webkit-background-clip: text;
+                   -webkit-text-fill-color: transparent;
+                   font-family:monospace;
+                   margin-left:1.5rem">
+            CODE CRITIC
+        </h1>
+    """
+st.markdown(title,unsafe_allow_html=True)
+
+# session state to display history 
+if "review_history" not in st.session_state:
+    st.session_state["review_history"] = []
 
 upload_file = st.file_uploader("Upload your code file",type=["py","js","cpp","c","txt"])
 code_content = ""
@@ -35,18 +49,23 @@ if code_content:
         db.refresh(db_review)
         st.success("Code review saved to history!")
 
-# sidebar to show review history
+        # save in session_state for displaying
+        tm = datetime.datetime.now()
+        st.session_state["review_history"].append({
+            "uploaded_code":code_content,
+            "suggestion":suggestions,
+            "time": tm.strftime("%a-%d-%b-%y")
+        })
+
+# sidebar to show review history using session_state
 st.sidebar.header("Review History")
 
-db: Session = next(get_db())
-past_reviews = db.query(CodeReview).order_by(CodeReview.timestamp.desc()).limit(5).all() # Display last 5 reviews
-
-if past_reviews:
-    for review in past_reviews:
-        with st.sidebar.expander(f"Review on {review.timestamp.strftime('%Y-%m-%d %H:%M:%S')}"):
-            st.subheader("Uploaded Code:")
-            st.code(review.uploaded_code)
-            st.subheader("Suggestions:")
-            st.markdown(review.suggestions)
+if st.session_state["review_history"]:
+    for review in reversed(st.session_state["review_history"]):
+        with st.sidebar.expander(f"review on:{review['time']}"):
+            st.subheader("uploaded code")
+            st.code(review["uploaded_code"])
+            st.subheader("suggestion")
+            st.markdown(review["suggestion"])
 else:
-    st.sidebar.info("No past code reviews yet.")
+    st.sidebar.info("No past code reviw in this session yet..")
