@@ -40,15 +40,6 @@ if code_content:
         with st.expander("click here to collapse.",expanded=True):
             st.markdown(suggestions)
 
-        # save the review in database
-        db: Session = next(get_db())
-        db_review = CodeReview(uploaded_code=code_content,
-                               suggestions=suggestions)
-        db.add(db_review)
-        db.commit()
-        db.refresh(db_review)
-        st.success("Code review saved to history!")
-
         # save in session_state for displaying
         tm = datetime.datetime.now()
         st.session_state["review_history"].append({
