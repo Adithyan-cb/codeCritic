@@ -1,7 +1,5 @@
 import streamlit as st
 from dotenv import load_dotenv
-from database import get_db,CodeReview
-from sqlalchemy.orm import Session
 from codecritic import codeCritic
 import datetime
 
@@ -47,6 +45,8 @@ if code_content:
             "suggestion":suggestions,
             "time": tm.strftime("%a-%d-%b-%y")
         })
+
+        st.success("review save in history")
 
 # sidebar to show review history using session_state
 st.sidebar.header("Review History")
